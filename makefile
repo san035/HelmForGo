@@ -72,9 +72,21 @@ install-k8s:
 	minikube version
 	helm version
 
-# Запуск Minikube
+# Minikube - запуск k8s
 start-k8s-minikube:
 	minikube start --driver=docker
+
+# Minikube - остановка
+minikube-stop:
+	minikube stop
+
+# Minikube - удалить
+minikube-delete:
+	minikube delete
+
+# minikube- конфигурационный файла k8s
+minikube-config:
+	cat ~/.kube/config
 
 # Открытие dashboard Minikube в браузере
 open-minikube-browser:
@@ -84,39 +96,71 @@ open-minikube-browser:
 helm-wiki:
 	open https://helm.sh/docs/helm/
 
-# Создание helm чарта - create
+# helm - Создание чарта
 helm-create:
 	helm create $(NAME_CHART)
 
-# Первый заупуск helm  чарта
+# helm - Первый заупуск  чарта
 # helm install [NAME] [CHART] [flags]
 # https://helm.sh/docs/helm/helm_install/
 helm-install:
 	helm install go-ping ./deploy-chart
 	#helm install $(NAME_APP) $(NAME_CHART)
 
-# обновление (установка) чарта
+# helm - обновление чарта
 helm-upgrade:
-	helm upgrade --install go-ping ./deploy-chart
+	helm upgrade go-ping ./deploy-chart
 
-# список деплоев
+# helm - обновление или установка чарта
+helm-install-upgrade:
+	helm upgrade --install $(NAME_APP) $(NAME_CHART)
+
+# удалить деплой
+helm-uninstall:
+	helm uninstall $(NAME_APP)
+
+# helm - список деплоев
 helm-list:
 	helm list
 
 # история ревизий helm - history
 helm-history:
-	helm history go-ping
-	#helm history $(NAME_APP)
+	helm history $(NAME_APP)
 
-# откат на старую ревизию
+# helm - откат на старую ревизию
 # helm rollback {приложение} {номер ревизии}
 helm-rollback:
-	helm rollback $(NAME_APP) 2
+	helm rollback $(NAME_APP) 5
 
-# Переназаначение значений в файле values.yaml из командной строки
+# helm - Переназаначение значений в файле values.yaml из командной строки
+# helm upgrade [RELEASE] [CHART] [flags]
 helm-set:
+	helm upgrade --install $(NAME_APP) $(NAME_CHART) --set replicaCount=4
 
+# helm - задание mynamespace
+	helm upgrade mychart --namespace mynamespace
 
-# Автоматический rollback при ошибке - atomic
+# helm - использование команды --dry-run
+helm-dry-run:
+	helm upgrade --install $(NAME_APP) $(NAME_CHART) --dry-run
+
+# helm - Автоматический rollback при ошибке - atomic
 helm-atomic:
-	# пример деплоя с несуществующим образом и откаткой назад
+	helm upgrade --install --atomic $(NAME_APP) $(NAME_CHART)
+
+# helm - вывод всех yaml файлов
+helm-manifest:
+	helm get manifest $(NAME_APP)
+
+# helm - подключенные репозитории
+helm-repo-list:
+	helm repo list
+
+# helm - загрузка чарта из  репозитория
+helm-repo-fetch:
+	helm fetch <helm_repository_name>/<chart_name>
+
+# helm - обновление или установка чарта на удаленный k8s
+helm-install-upgrade-remote:
+	helm upgrade --install $(NAME_APP) $(NAME_CHART) --kubeconfig kubeconfig.yaml
+
